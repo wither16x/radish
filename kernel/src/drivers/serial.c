@@ -23,10 +23,14 @@ int serial_init()
         return 0;
 }
 
+void serial_send_char(char ch)
+{
+        while ((inb(COM1 + 5) & 0x20) == 0);
+        outb(COM1, ch);
+}
+
 void serial_send_str(const char *s)
 {
-        while (*s) {
-                while ((inb(COM1 + 5) & 0x20) == 0);
-                outb(COM1, *s++);
-        }
+        while (*s)
+                serial_send_char(*s++);
 }
