@@ -2,6 +2,7 @@
 #include <stddef.h>
 #include <limine.h>
 #include <drivers/serial.h>
+#include <klib/print.h>
 
 __attribute__((used, section(".limine_requests")))
 static volatile uint64_t limine_base_revision[] = LIMINE_BASE_REVISION(6);
@@ -33,7 +34,7 @@ void kernel_main(void) {
         if (serial_init() < 0)
                 hcf();
 
-        serial_send_str("Hello, world!");
+        printf("Booted successfully!\r\n");
 
         hcf();
 }
