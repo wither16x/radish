@@ -48,7 +48,7 @@ static void print_int(size_t n, int base)
         print_str(buf);
 }
 
-static void vprintf(const char *fmt, va_list args)
+void vprintf(const char *fmt, va_list args)
 {
         while (*fmt) {
                 if (*fmt == '%') {
