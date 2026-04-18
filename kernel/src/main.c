@@ -1,8 +1,9 @@
-#include <stdint.h>
-#include <stddef.h>
-#include <limine.h>
+#include <cpu/gdt.h>
 #include <drivers/serial.h>
 #include <klib/print.h>
+#include <limine.h>
+#include <stdint.h>
+#include <stddef.h>
 
 __attribute__((used, section(".limine_requests")))
 static volatile uint64_t limine_base_revision[] = LIMINE_BASE_REVISION(6);
@@ -33,8 +34,10 @@ void kernel_main(void) {
 
         if (serial_init() < 0)
                 hcf();
+        printf("info: initialized serial driver\r\n");
 
-        printf("Booted successfully!\r\n");
+        gdt_init();
+        printf("info: installed new gdt\r\n");
 
         hcf();
 }
