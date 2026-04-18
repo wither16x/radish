@@ -3,6 +3,7 @@
 #include <drivers/serial.h>
 #include <klib/logging.h>
 #include <limine.h>
+#include <mem/pmm.h>
 #include <panic.h>
 #include <stdint.h>
 #include <stddef.h>
@@ -12,8 +13,14 @@ static volatile uint64_t limine_base_revision[] = LIMINE_BASE_REVISION(6);
 
 __attribute__((used, section(".limine_requests")))
 static volatile struct limine_framebuffer_request framebuffer_request = {
-    .id = LIMINE_FRAMEBUFFER_REQUEST_ID,
-    .revision = 0
+        .id = LIMINE_FRAMEBUFFER_REQUEST_ID,
+        .revision = 0
+};
+
+__attribute__((used, section(".limine_requests")))
+static volatile struct limine_memmap_request memmap_request = {
+        .id = LIMINE_MEMMAP_REQUEST_ID,
+        .revision = 0
 };
 
 __attribute__((used, section(".limine_requests_start")))
@@ -38,6 +45,9 @@ void kernel_main(void) {
 
         idt_init();
         info("installed idt");
+
+        pmm_init(memmap_request.response);
+        info("installed pmm");
 
         panic("nothing to do");
 }
