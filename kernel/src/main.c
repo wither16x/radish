@@ -1,7 +1,9 @@
 #include <cpu/gdt.h>
+#include <cpu/idt.h>
 #include <drivers/serial.h>
-#include <klib/print.h>
+#include <klib/logging.h>
 #include <limine.h>
+#include <panic.h>
 #include <stdint.h>
 #include <stddef.h>
 
@@ -20,24 +22,22 @@ static volatile uint64_t limine_requests_start_marker[] = LIMINE_REQUESTS_START_
 __attribute__((used, section(".limine_requests_end")))
 static volatile uint64_t limine_requests_end_marker[] = LIMINE_REQUESTS_END_MARKER;
 
-static void hcf(void) {
-        for (;;)
-                __asm__ ("hlt");
-}
-
 void kernel_main(void) {
         if (LIMINE_BASE_REVISION_SUPPORTED(limine_base_revision) == false)
-                hcf();
+                panic("limine base revision %d is not supported", limine_base_revision);
 
         if (framebuffer_request.response == NULL || framebuffer_request.response->framebuffer_count < 1)
-                hcf();
+                panic("no framebuffer found");
 
         if (serial_init() < 0)
-                hcf();
-        printf("info: initialized serial driver\r\n");
+                panic("failed to initialize serial port");
+        info("initialized serial driver");
 
         gdt_init();
-        printf("info: installed new gdt\r\n");
+        info("installed gdt");
 
-        hcf();
+        idt_init();
+        info("installed idt");
+
+        panic("nothing to do");
 }

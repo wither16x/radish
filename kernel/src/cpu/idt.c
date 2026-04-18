@@ -1,0 +1,50 @@
+#include <cpu/idt.h>
+#include <stdint.h>
+
+extern void idt_flush(uint64_t idtr);
+extern void __asm_isr0();
+extern void __asm_isr13();
+extern void __asm_isr14();
+
+constexpr int MAX_IDT_ENTRIES = 255;
+
+struct __attribute__((packed)) idt_entry {
+        uint16_t        isr_low;
+        uint16_t        kcs;
+        uint8_t         ist;
+        uint8_t         attr;
+        uint16_t        isr_mid;
+        uint32_t        isr_high;
+        uint32_t        __reserved;
+};
+
+struct __attribute__((packed)) idtr {
+        uint16_t limit;
+        uint64_t base;
+};
+
+static struct idt_entry idt[MAX_IDT_ENTRIES];
+
+static void idt_set_entry(int n, void *isr, uint8_t flags)
+{
+        idt[n].isr_low          = (uint64_t)isr & 0xffff;
+        idt[n].kcs              = 0x08;
+        idt[n].ist              = 0;
+        idt[n].attr             = flags;
+        idt[n].isr_mid          = ((uint64_t)isr >> 16) & 0xffff;
+        idt[n].isr_high         = ((uint64_t)isr >> 32) & 0xffffffff;
+}
+
+void idt_init()
+{
+        struct idtr idt_ptr = {
+                .limit = sizeof(idt) - 1,
+                .base = (uint64_t)&idt
+        };
+
+        idt_set_entry(0, __asm_isr0, 0x8e);
+        idt_set_entry(13, __asm_isr13, 0x8e);
+        idt_set_entry(14, __asm_isr14, 0x8e);
+
+        idt_flush((uint64_t)&idt_ptr);
+}
