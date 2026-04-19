@@ -11,7 +11,7 @@
 static constexpr int FRAME_SIZE                = 4096;          // 4 KiB
 static constexpr uint64_t MAX_FRAMES           = TWO_GIGABYTES / FRAME_SIZE; 
 
-static uint64_t bitmap[MAX_FRAMES];
+static uint64_t bitmap[(MAX_FRAMES + sizeof(uint64_t) * 8 - 1) / (sizeof(uint64_t) * 8)];
 static uint64_t last_frame = 0;         // last allocated frame
 
 // Mark a frame as allocated in the bitmap
