@@ -10,8 +10,7 @@ static constexpr uint64_t HEAP_SIZE     = 0x20000000;           // 512 MiB
 static constexpr uint64_t BLOCK_SIZE    = 64;                   // 64 bytes allocated for 1 byte
 static constexpr uint64_t MAX_BLOCKS    = HEAP_SIZE / BLOCK_SIZE;
 
-static uint64_t bitmap[MAX_BLOCKS];
-static uint64_t last_block = 0;
+static uint64_t bitmap[(MAX_BLOCKS + sizeof(uint64_t) * 8 - 1) / (sizeof(uint64_t) * 8)];
 
 // Mark a block as allocated in the bitmap
 static void block_set_allocated(uint64_t i)
@@ -54,34 +53,39 @@ void heap_init()
 
 void *heap_alloc(size_t n)
 {
-        // Number of blocks needed
-        size_t blocks = (n + BLOCK_SIZE - 1) / BLOCK_SIZE;
+        // nothing to allocate
+        if (n == 0)
+                return NULL;
+
+        // space for the header
+        size_t total = n + sizeof(size_t);
+        // number of blocks needed
+        size_t blocks = (total + BLOCK_SIZE - 1) / BLOCK_SIZE;
 
         for (size_t start = 0; start +  blocks <= MAX_BLOCKS; ++start) {
-                bool not_found = true;
+                bool found = true;
 
                 // Look for a free block
                 for (size_t i = 0; i < blocks; i++) {
                         if (get_block(start + i)) {
-                                not_found = false;
+                                found = false;
                                 break;
                         }
                 }
 
-                if (!not_found)
+                if (!found)
                         continue;
 
                 for (size_t i = 0; i < blocks; i++)
                         block_set_allocated(start + i);
 
-                return (void *)(start + last_block * BLOCK_SIZE);
+                uintptr_t addr = (uintptr_t)__heap_start + start * BLOCK_SIZE;
+                size_t *hdr = (size_t *)addr;
+                *hdr = blocks;
+                return (void*)(hdr + 1);
         }
 
-        panic(
-                "out of heap memory\r\n"
-                "last allocated block: %d",
-                last_block
-        );
+        panic("out of heap memory");
 
         // To avoid compiler warnings, should never be reached
         return NULL;
@@ -104,7 +108,4 @@ void heap_free(void *p)
 
                 block_set_free(idx);
         }
-
-        if (first_block < last_block)
-                last_block = first_block;
 }
