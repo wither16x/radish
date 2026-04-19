@@ -60,7 +60,9 @@ static void map_hhdm()
 // Map the heap area
 static void map_heap()
 {
-        uint64_t heap_size = page_div_up(__heap_end - __heap_start);
+        uint64_t start = (uint64_t)*(&__heap_start);
+        uint64_t end = (uint64_t)*(&__heap_end);
+        uint64_t heap_size = page_div_up(end - start);
         // Why the fuck does the compiler say that both variables below are
         // unused T-T
         uint64_t phys = pmm_allocate_frame();
