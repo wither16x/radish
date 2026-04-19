@@ -12,6 +12,7 @@ void panic(const char *fmt, ...)
         va_end(args);
         printf("\r\n");
 
+        __asm__ ("cli");
         while (true)
                 __asm__ ("hlt");
 }
