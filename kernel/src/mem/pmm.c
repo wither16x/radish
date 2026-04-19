@@ -4,14 +4,17 @@
 #include <panic.h>
 #include <stdint.h>
 
+// The PMM only handles the first 2GB of RAM.
+// To be changed later, but this is enough for old machines.
 #define TWO_GIGABYTES                   0x80000000
 
-static constexpr int FRAME_SIZE                = 4096;
+static constexpr int FRAME_SIZE                = 4096;          // 4 KiB
 static constexpr uint64_t MAX_FRAMES           = TWO_GIGABYTES / FRAME_SIZE; 
 
 static uint64_t bitmap[MAX_FRAMES];
-static uint64_t last_frame = 0;
+static uint64_t last_frame = 0;         // last allocated frame
 
+// Mark a frame as allocated in the bitmap
 static void frame_set_allocated(uint64_t i)
 {
         if (i < MAX_FRAMES) {
@@ -21,6 +24,7 @@ static void frame_set_allocated(uint64_t i)
         }
 }
 
+// Mark a frame as free in the bitmap
 static void frame_set_free(uint64_t i)
 {
         if (i < MAX_FRAMES) {
@@ -30,6 +34,7 @@ static void frame_set_free(uint64_t i)
         }
 }
 
+// Get a bit from the bitmap
 static bool get_frame(uint64_t i)
 {
         if (i < MAX_FRAMES) {
@@ -43,9 +48,11 @@ static bool get_frame(uint64_t i)
 
 void pmm_init(struct limine_memmap_response *memmap)
 {
+        // Allocate everything
         for (uint64_t i = 0; i < MAX_FRAMES; i++)
                 frame_set_allocated(i);
 
+        // Then free all usable frames
         for (uint64_t i = 0; i < memmap->entry_count; i++) {
                 if (memmap->entries[i]->type == LIMINE_MEMMAP_USABLE) {
                         struct limine_memmap_entry *e = memmap->entries[i];
@@ -62,6 +69,7 @@ void pmm_init(struct limine_memmap_response *memmap)
 
 uintptr_t pmm_allocate_frame()
 {
+        // Look for a free frame
         while (last_frame < MAX_FRAMES && get_frame(last_frame))
                 last_frame++;
 
@@ -73,6 +81,7 @@ uintptr_t pmm_allocate_frame()
                 );
         }
 
+        // Allocate the frame
         frame_set_allocated(last_frame);
         return last_frame * FRAME_SIZE;
 }

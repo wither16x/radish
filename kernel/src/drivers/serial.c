@@ -2,6 +2,7 @@
 #include <drivers/serial.h>
 #include <stdint.h>
 
+// The only port we are using is COM1, this may change in the future
 static constexpr uint16_t COM1 = 0x3f8;
 
 int serial_init()
@@ -15,6 +16,7 @@ int serial_init()
         outb(COM1 + 4, 0x0b);
         outb(COM1 + 4, 0x1e);
 
+        // Test
         outb(COM1, 0xae);
         if (inb(COM1) != 0xae)
                 return -1;

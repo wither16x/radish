@@ -6,13 +6,14 @@
 extern uint64_t __heap_start[];
 extern uint64_t __heap_end[];
 
-static constexpr uint64_t HEAP_SIZE     = 0x20000000;
-static constexpr uint64_t BLOCK_SIZE    = 64;
+static constexpr uint64_t HEAP_SIZE     = 0x20000000;           // 512 MiB
+static constexpr uint64_t BLOCK_SIZE    = 64;                   // 64 bytes allocated for 1 byte
 static constexpr uint64_t MAX_BLOCKS    = HEAP_SIZE / BLOCK_SIZE;
 
 static uint64_t bitmap[MAX_BLOCKS];
 static uint64_t last_block = 0;
 
+// Mark a block as allocated in the bitmap
 static void block_set_allocated(uint64_t i)
 {
         if (i < MAX_BLOCKS) {
@@ -22,6 +23,7 @@ static void block_set_allocated(uint64_t i)
         }
 }
 
+// Mark a block as free in the bitmap
 static void block_set_free(uint64_t i)
 {
         if (i < MAX_BLOCKS) {
@@ -31,6 +33,7 @@ static void block_set_free(uint64_t i)
         }
 }
 
+// Get a bit from the bitmap
 static bool get_block(uint64_t i)
 {
         if (i < MAX_BLOCKS) {
@@ -44,17 +47,20 @@ static bool get_block(uint64_t i)
 
 void heap_init()
 {
+        // Free all blocks
         for (uint64_t i = 0; i < MAX_BLOCKS; i++)
                 block_set_free(i);
 }
 
 void *heap_alloc(size_t n)
 {
+        // Number of blocks needed
         size_t blocks = (n + BLOCK_SIZE - 1) / BLOCK_SIZE;
 
         for (size_t start = 0; start +  blocks <= MAX_BLOCKS; ++start) {
                 bool not_found = true;
 
+                // Look for a free block
                 for (size_t i = 0; i < blocks; i++) {
                         if (get_block(start + i)) {
                                 not_found = false;
@@ -77,6 +83,7 @@ void *heap_alloc(size_t n)
                 last_block
         );
 
+        // To avoid compiler warnings, should never be reached
         return NULL;
 }
 

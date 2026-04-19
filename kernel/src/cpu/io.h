@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 
+// Assembly OUTB instruction
 inline void outb(uint16_t port, uint8_t val)
 {
         __asm__ volatile (
@@ -12,6 +13,7 @@ inline void outb(uint16_t port, uint8_t val)
         );
 }
 
+// Assembly INB instruction
 inline uint8_t inb(uint16_t port)
 {
         uint8_t val;

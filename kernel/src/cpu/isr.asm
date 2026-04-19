@@ -1,5 +1,6 @@
 bits 64
 
+; Generate a stub for an ISR which has an error code
 %macro isr_err_stub 1
 align 16
 global __asm_isr%1
@@ -8,6 +9,7 @@ __asm_isr%1:
         jmp __isr_common
 %endmacro
 
+; Generate a stub for an ISR which has no error code
 %macro isr_noerr_stub 1
 align 16
 global __asm_isr%1
@@ -20,9 +22,9 @@ __asm_isr%1:
 section .text
 extern isr_handle
 
-isr_noerr_stub  0
-isr_err_stub    13
-isr_err_stub    14
+isr_noerr_stub  0               ; division by zero
+isr_err_stub    13              ; general protection fault
+isr_err_stub    14              ; page fault
 
 __isr_common:
     push r15

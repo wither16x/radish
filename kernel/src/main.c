@@ -10,9 +10,14 @@
 #include <stdint.h>
 #include <stddef.h>
 
+// Limine-related data
+// ================================================================================
+// Base revision
 __attribute__((used, section(".limine_requests")))
 static volatile uint64_t limine_base_revision[] = LIMINE_BASE_REVISION(6);
 
+// Limine requests
+// ================================================================================
 __attribute__((used, section(".limine_requests")))
 static volatile struct limine_framebuffer_request framebuffer_request = {
         .id = LIMINE_FRAMEBUFFER_REQUEST_ID,
@@ -37,19 +42,25 @@ static volatile struct limine_executable_address_request exec_request = {
         .revision = 0
 };
 
+// Limits of section .limine_requests
+// ================================================================================
 __attribute__((used, section(".limine_requests_start")))
 static volatile uint64_t limine_requests_start_marker[] = LIMINE_REQUESTS_START_MARKER;
 
 __attribute__((used, section(".limine_requests_end")))
 static volatile uint64_t limine_requests_end_marker[] = LIMINE_REQUESTS_END_MARKER;
+// ================================================================================
 
 void kernel_main(void) {
+        // Display messages even though the serial port is not initialized yet.
+        // This can help the reader to understand why `panic()` is called.
         if (LIMINE_BASE_REVISION_SUPPORTED(limine_base_revision) == false)
                 panic("limine base revision %d is not supported", limine_base_revision);
 
         if (framebuffer_request.response == NULL || framebuffer_request.response->framebuffer_count < 1)
                 panic("no framebuffer found");
 
+        // Try to initialize the serial port so an output environment is available
         if (serial_init() < 0)
                 panic("failed to initialize serial port");
         info("initialized serial driver");
@@ -69,5 +80,6 @@ void kernel_main(void) {
         heap_init();
         info("initialized heap");
 
+        // Idle
         panic("nothing to do");
 }

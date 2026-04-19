@@ -3,6 +3,7 @@
 #include <panic.h>
 #include <stdint.h>
 
+// Pushed registers before calling the handler
 struct int_frame {
 	uint64_t cr2, cr3;
 	uint64_t rax, rbx, rcx, rdx;

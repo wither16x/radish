@@ -3,17 +3,20 @@
 #include <stdarg.h>
 #include <stddef.h>
 
+// Display a single character
 static void putchar(char ch)
 {
         serial_send_char(ch);
 }
 
+// Display a string
 static void print_str(const char *s)
 {
         while (*s)
                 putchar(*s++);
 }
 
+// Display an unsigned integer
 static void print_int(size_t n, int base)
 {
         char buf[32];

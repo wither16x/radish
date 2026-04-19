@@ -3,6 +3,7 @@
 
 extern void gdt_flush(uint64_t gdtr);
 
+// This will change when user and TSS segments will be added
 static constexpr int GDT_MAX_ENTRIES = 3;
 
 struct __attribute__((packed)) gdt_entry {
@@ -38,9 +39,9 @@ void gdt_init()
                 .base = (uint64_t)&gdt
         };
 
-        gdt_set_entry(0, 0, 0, 0, 0);
-        gdt_set_entry(1, 0, 0, 0x9a, 0xa0);
-        gdt_set_entry(2, 0, 0, 0x92, 0x80);
+        gdt_set_entry(0, 0, 0, 0, 0);           // null
+        gdt_set_entry(1, 0, 0, 0x9a, 0xa0);     // code segment
+        gdt_set_entry(2, 0, 0, 0x92, 0x80);     // data segment
 
         gdt_flush((uint64_t)&gdt_ptr);
 }

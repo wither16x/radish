@@ -16,6 +16,7 @@ static struct limine_hhdm_response *hhdm_response;
 static struct limine_executable_address_response *exec_response;
 static struct limine_memmap_response *memmap_response;
 
+// Map the kernel area
 static void map_kernel()
 {
         uint64_t kernel_start     = (uint64_t)*(&__kernel_start);
@@ -31,6 +32,7 @@ static void map_kernel()
         }
 }
 
+// Map the HHDM area
 static void map_hhdm()
 {
         for (uint64_t i = 0; i < memmap_response->entry_count; i++) {
@@ -55,9 +57,12 @@ static void map_hhdm()
         }
 }
 
+// Map the heap area
 static void map_heap()
 {
         uint64_t heap_size = page_div_up(__heap_end - __heap_start);
+        // Why the fuck does the compiler say that both variables below are
+        // unused T-T
         uint64_t phys = pmm_allocate_frame();
         uint64_t virt = (uint64_t)&__heap_start;
 
@@ -68,10 +73,11 @@ static void map_heap()
         }
 }
 
+// Initialize the PML4 table
 static void init_pml4t()
 {
         pml4t = (uint64_t *)(PAGE_SIZE * pmm_allocate_frame() + hhdm_response->offset);
-        memset(pml4t, 0, PAGE_SIZE);
+        memset(pml4t, 0, PAGE_SIZE);    // set the table to 0
         map_kernel();
         map_hhdm();
         map_heap();
@@ -89,6 +95,7 @@ void vmm_init(
 
         init_pml4t();
 
+        // Reload CR3
         uint64_t cr3 = (uint64_t)pml4t - hhdm_response->offset;
         __asm__ volatile (
                 "movq %0, %%cr3"
