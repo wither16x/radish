@@ -4,6 +4,7 @@
 #include <klib/logging.h>
 #include <limine.h>
 #include <mem/pmm.h>
+#include <mem/vmm.h>
 #include <panic.h>
 #include <stdint.h>
 #include <stddef.h>
@@ -20,6 +21,18 @@ static volatile struct limine_framebuffer_request framebuffer_request = {
 __attribute__((used, section(".limine_requests")))
 static volatile struct limine_memmap_request memmap_request = {
         .id = LIMINE_MEMMAP_REQUEST_ID,
+        .revision = 0
+};
+
+__attribute__((used, section(".limine_requests")))
+static volatile struct limine_hhdm_request hhdm_request = {
+        .id = LIMINE_HHDM_REQUEST_ID,
+        .revision = 0
+};
+
+__attribute__((used, section(".limine_requests")))
+static volatile struct limine_executable_address_request exec_request = {
+        .id = LIMINE_EXECUTABLE_ADDRESS_REQUEST_ID,
         .revision = 0
 };
 
@@ -48,6 +61,9 @@ void kernel_main(void) {
 
         pmm_init(memmap_request.response);
         info("installed pmm");
+
+        vmm_init(hhdm_request.response, exec_request.response, memmap_request.response);
+        info("installed vmm");
 
         panic("nothing to do");
 }
