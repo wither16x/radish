@@ -93,6 +93,11 @@ void *heap_alloc(size_t n)
 
 void heap_free(void *p)
 {
+        // As you can see, this function only clears a bit the bitmap, so
+        // you can do use-after-free (`heap_free(p); *p = 42;` would work).
+        // However, do not do that because the cleared blocks can be reused
+        // by `heap_alloc()`.
+
         if (!p)
                 return;
 
