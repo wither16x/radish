@@ -53,4 +53,8 @@ SECTIONS
     }
 
     __kernel_end = .;
+
+    __heap_start = .;
+    . += 0x20000000;
+    __heap_end = .;
 }

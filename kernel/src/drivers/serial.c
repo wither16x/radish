@@ -2,7 +2,7 @@
 #include <drivers/serial.h>
 #include <stdint.h>
 
-constexpr uint16_t COM1 = 0x3f8;
+static constexpr uint16_t COM1 = 0x3f8;
 
 int serial_init()
 {

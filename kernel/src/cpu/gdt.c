@@ -3,7 +3,7 @@
 
 extern void gdt_flush(uint64_t gdtr);
 
-constexpr int GDT_MAX_ENTRIES = 3;
+static constexpr int GDT_MAX_ENTRIES = 3;
 
 struct __attribute__((packed)) gdt_entry {
         uint16_t        limit_low;

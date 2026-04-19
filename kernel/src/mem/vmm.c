@@ -6,8 +6,10 @@
 
 extern uint64_t __kernel_start[];
 extern uint64_t __kernel_end[];
+extern uint64_t __heap_start[];
+extern uint64_t __heap_end[];
 
-constexpr uint64_t PAGE_MASK = 0xffffffffff000;
+static constexpr uint64_t PAGE_MASK = 0xffffffffff000;
 
 static uint64_t *pml4t;
 static struct limine_hhdm_response *hhdm_response;
@@ -53,12 +55,26 @@ static void map_hhdm()
         }
 }
 
+static void map_heap()
+{
+        uint64_t heap_size = page_div_up(__heap_end - __heap_start);
+        uint64_t phys = pmm_allocate_frame();
+        uint64_t virt = (uint64_t)&__heap_start;
+
+        for (uint64_t i = 0; i < heap_size; i++) {
+                vmm_map_page((uint64_t)&__heap_start, pmm_allocate_frame(), PAGE_READ_WRITE | PAGE_NO_EXEC);
+                phys = pmm_allocate_frame();
+                virt += PAGE_SIZE;
+        }
+}
+
 static void init_pml4t()
 {
         pml4t = (uint64_t *)(PAGE_SIZE * pmm_allocate_frame() + hhdm_response->offset);
         memset(pml4t, 0, PAGE_SIZE);
         map_kernel();
         map_hhdm();
+        map_heap();
 }
 
 void vmm_init(

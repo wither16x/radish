@@ -6,7 +6,7 @@ extern void __asm_isr0();
 extern void __asm_isr13();
 extern void __asm_isr14();
 
-constexpr int MAX_IDT_ENTRIES = 255;
+static constexpr int MAX_IDT_ENTRIES = 255;
 
 struct __attribute__((packed)) idt_entry {
         uint16_t        isr_low;

@@ -3,6 +3,7 @@
 #include <drivers/serial.h>
 #include <klib/logging.h>
 #include <limine.h>
+#include <mem/heap.h>
 #include <mem/pmm.h>
 #include <mem/vmm.h>
 #include <panic.h>
@@ -60,10 +61,13 @@ void kernel_main(void) {
         info("installed idt");
 
         pmm_init(memmap_request.response);
-        info("installed pmm");
+        info("initialized pmm");
 
         vmm_init(hhdm_request.response, exec_request.response, memmap_request.response);
-        info("installed vmm");
+        info("initialized vmm");
+
+        heap_init();
+        info("initialized heap");
 
         panic("nothing to do");
 }

@@ -6,8 +6,8 @@
 
 #define TWO_GIGABYTES                   0x80000000
 
-constexpr int FRAME_SIZE                = 4096;
-constexpr uint64_t MAX_FRAMES           = TWO_GIGABYTES / FRAME_SIZE; 
+static constexpr int FRAME_SIZE                = 4096;
+static constexpr uint64_t MAX_FRAMES           = TWO_GIGABYTES / FRAME_SIZE; 
 
 static uint64_t bitmap[MAX_FRAMES];
 static uint64_t last_frame = 0;
