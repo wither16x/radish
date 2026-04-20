@@ -17,7 +17,7 @@ static void print_str(const char *s)
 }
 
 // Display an unsigned integer
-static void print_int(size_t n, int base)
+static void print_uint(size_t n, int base)
 {
         char buf[32];
         bool neg = false;
@@ -76,25 +76,25 @@ void vprintf(const char *fmt, va_list args)
 
                         case 'b': {
                                 size_t n = va_arg(args, size_t);
-                                print_int(n, 2);
+                                print_uint(n, 2);
                                 break;
                         }
 
                         case 'o': {
                                 size_t n = va_arg(args, size_t);
-                                print_int(n, 8);
+                                print_uint(n, 8);
                                 break;
                         }
 
                         case 'd': {
                                 size_t n = va_arg(args, size_t);
-                                print_int(n, 10);
+                                print_uint(n, 10);
                                 break;
                         }
 
                         case 'x': {
                                 size_t n = va_arg(args, size_t);
-                                print_int(n, 16);
+                                print_uint(n, 16);
                                 break;
                         }
 
