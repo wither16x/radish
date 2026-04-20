@@ -5,6 +5,8 @@
 
 // Dynamically allocate `n` bytes for a pointer
 void *malloc(size_t n);
+// Reallocate a dynamically allocated pointer
+void *realloc(void *p, size_t len);
 // Free a dynamically allocated pointer
 void free(void *p);
 
